@@ -1,3 +1,4 @@
+import { makeUser } from "../../../../shared/test/factories/user-factory";
 import { InMemoryUsersRepository } from "../../repositories/in-memory/InMemoryUsersRepository";
 import { CreateUserError } from "./CreateUserError";
 import { CreateUserUseCase } from "./CreateUserUseCase";
@@ -12,11 +13,7 @@ describe("Create a new user", () => {
   });
 
   it("should be able to create a new user", async () => {
-    const newUser = {
-      name: "User name",
-      email: "user@example.com",
-      password: "12345",
-    };
+    const newUser = makeUser();
 
     const response = await createUserUseCase.execute(newUser);
 
@@ -25,17 +22,9 @@ describe("Create a new user", () => {
 
   it("should not be able to create a new user with in use e-mail", () => {
     expect(async () => {
-      const userOne = {
-        name: "User One",
-        email: "user@example.com",
-        password: "12345",
-      };
+      const userOne = makeUser({ email: "same-email@example.com" });
 
-      const userTwo = {
-        name: "User Two",
-        email: "user@example.com",
-        password: "54321",
-      };
+      const userTwo = makeUser({ email: "same-email@example.com" });
 
       await createUserUseCase.execute(userOne);
       await createUserUseCase.execute(userTwo);

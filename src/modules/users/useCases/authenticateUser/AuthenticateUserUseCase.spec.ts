@@ -1,4 +1,5 @@
 import { hash } from "bcryptjs";
+import { makeUser } from "../../../../shared/test/factories/user-factory";
 import { InMemoryUsersRepository } from "../../repositories/in-memory/InMemoryUsersRepository";
 import { AuthenticateUserUseCase } from "./AuthenticateUserUseCase";
 import { IncorrectEmailOrPasswordError } from "./IncorrectEmailOrPasswordError";
@@ -15,11 +16,7 @@ describe("Authenticate user", () => {
   });
 
   it("should be able to authenticate an user", async () => {
-    const newUser = {
-      name: "User name",
-      email: "user@example.com",
-      password: "12345",
-    };
+    const newUser = makeUser();
     const hashedPassword = await hash(newUser.password, 8);
 
     await inMemoryUsersRepository.create({
@@ -34,7 +31,7 @@ describe("Authenticate user", () => {
 
     expect(response).toHaveProperty("token");
     expect(response).toHaveProperty("user");
-    expect(response.user.name).toEqual("User name");
+    expect(response.user.name).toEqual(newUser.name);
   });
 
   it("should not be able to authenticate an unregistered user", () => {
@@ -83,7 +80,7 @@ describe("Authenticate user", () => {
 
       await authenticateUserUseCase.execute({
         email: newUser.email,
-        password: "wrong-password"
+        password: "wrong-password",
       });
     }).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError);
   });
